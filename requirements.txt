@@ -13,4 +13,4 @@ groq>=0.8.0
 tavily-python>=0.3.3
 
 # Env & utilities
-python-dotenv==1.0.1
+python-dotenv==1.0.0
