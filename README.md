@@ -2,6 +2,8 @@
 
 A production-grade **multi-agent AI system** built with [CrewAI](https://github.com/joaomdmoura/crewAI) that automates the end-to-end job application tailoring process. Four specialized AI agents collaborate to analyze job postings, build candidate profiles, optimize resumes, and generate targeted interview preparation materials.
 
+> **Stack:** Groq `llama3-70b-8192` · Tavily Search · CrewAI · LangChain
+
 ---
 
 ## 🧠 Architecture Overview
@@ -19,13 +21,13 @@ job-application-crew-ai/
 │   ├── resume_strategy_task.py# Resume tailoring task
 │   └── interview_prep_task.py # Interview materials task
 ├── tools/
-│   └── custom_tools.py        # CrewAI tool wrappers
+│   └── custom_tools.py        # Tavily search + scrape + resume tools
 ├── outputs/                   # Generated artifacts (gitignored)
 ├── data/
-│   └── sample_resume.md       # Sample resume input file
+│   └── sample_resume.md       # Candidate resume input
 ├── crew.py                    # Crew orchestration entry point
 ├── main.py                    # CLI runner
-├── config.py                  # Configuration and environment setup
+├── config.py                  # LLM + env + path configuration
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -37,10 +39,10 @@ job-application-crew-ai/
 
 | Agent | Role | Tools |
 |-------|------|-------|
-| **Researcher** | Extracts key skills & qualifications from job postings | SerperDev, ScrapeWebsite |
-| **Profiler** | Builds a comprehensive candidate profile | SerperDev, ScrapeWebsite, FileRead, MDXSearch |
-| **Resume Strategist** | Tailors resume to match job requirements | SerperDev, ScrapeWebsite, FileRead, MDXSearch |
-| **Interview Preparer** | Generates interview questions & talking points | SerperDev, ScrapeWebsite, FileRead, MDXSearch |
+| **Researcher** | Extracts key skills & qualifications from job postings | Tavily, ScrapeWebsite |
+| **Profiler** | Builds a comprehensive candidate profile | Tavily, ScrapeWebsite, FileRead, MDXSearch |
+| **Resume Strategist** | Tailors resume to match job requirements | Tavily, ScrapeWebsite, FileRead, MDXSearch |
+| **Interview Preparer** | Generates interview questions & talking points | Tavily, ScrapeWebsite, FileRead, MDXSearch |
 
 ---
 
@@ -78,8 +80,14 @@ pip install -r requirements.txt
 ### 4. Configure environment variables
 ```bash
 cp .env.example .env
-# Fill in your API keys in .env
+# Fill in your GROQ_API_KEY and TAVILY_API_KEY
 ```
+
+| Variable | Source | Notes |
+|----------|--------|-------|
+| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | Free tier available |
+| `GROQ_MODEL` | — | Defaults to `llama3-70b-8192` |
+| `TAVILY_API_KEY` | [app.tavily.com](https://app.tavily.com) | Free tier available |
 
 ### 5. Add your resume
 Replace `data/sample_resume.md` with your own resume in Markdown format.
@@ -88,7 +96,7 @@ Replace `data/sample_resume.md` with your own resume in Markdown format.
 ```bash
 python main.py \
   --job-url "https://jobs.example.com/posting" \
-  --github-url "https://github.com/your-username" \
+  --github-url "https://github.com/KoushikSamudrala" \
   --writeup "Brief personal summary about yourself"
 ```
 
@@ -96,26 +104,17 @@ Outputs are saved to `outputs/tailored_resume.md` and `outputs/interview_materia
 
 ---
 
-## 🔑 Environment Variables
-
-```env
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL_NAME=gpt-4-turbo
-SERPER_API_KEY=your_serper_api_key
-```
-
-> **Tip:** You can swap OpenAI for Google Gemini by updating `config.py` to use `langchain_google_genai`.
-
----
-
 ## 📦 Tech Stack
 
-- **[CrewAI](https://github.com/joaomdmoura/crewAI)** — Multi-agent orchestration framework
-- **[LangChain Community](https://github.com/langchain-ai/langchain)** — LLM tooling & integrations
-- **SerperDev API** — Real-time web search
-- **ScrapeWebsite Tool** — Job posting content extraction
-- **MDXSearch Tool** — Semantic resume search
-- **Python-dotenv** — Environment configuration
+| Component | Library / Service |
+|-----------|------------------|
+| Multi-agent orchestration | [CrewAI](https://github.com/joaomdmoura/crewAI) `0.28.8` |
+| LLM | [Groq](https://groq.com) — `llama3-70b-8192` |
+| LLM integration | `langchain_groq` |
+| Web search | [Tavily](https://tavily.com) via `TavilySearchResults` |
+| Web scraping | `ScrapeWebsiteTool` (crewai_tools) |
+| Resume tools | `FileReadTool`, `MDXSearchTool` (crewai_tools) |
+| Config management | `python-dotenv` |
 
 ---
 
@@ -130,7 +129,8 @@ SERPER_API_KEY=your_serper_api_key
 
 ## 🧩 Extending the Project
 
-- **Swap LLM**: Edit `config.py` to use Gemini, Claude, or any LangChain-compatible model
+- **Swap LLM**: Edit `config.py` — change `ChatGroq` to `ChatGoogleGenerativeAI` (Gemini) or `ChatOpenAI`
+- **Change Groq model**: Set `GROQ_MODEL=mixtral-8x7b-32768` (or any Groq-supported model) in `.env`
 - **Add agents**: Create a new file in `agents/` and register in `crew.py`
 - **Add tasks**: Create a new file in `tasks/` and add to the Crew task list
 - **Custom tools**: Extend `tools/custom_tools.py` with new CrewAI tools

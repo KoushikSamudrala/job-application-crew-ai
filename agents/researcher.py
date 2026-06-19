@@ -1,6 +1,7 @@
-"""Tech Job Researcher agent definition."""
+"""Tech Job Researcher agent — uses Groq LLM + Tavily search."""
 
 from crewai import Agent
+from config import llm
 from tools.custom_tools import scrape_tool, search_tool
 
 
@@ -13,6 +14,7 @@ def create_researcher() -> Agent:
             "to help job applicants stand out."
         ),
         tools=[scrape_tool, search_tool],
+        llm=llm,
         verbose=True,
         backstory=(
             "As a Job Researcher, your prowess in navigating and extracting "

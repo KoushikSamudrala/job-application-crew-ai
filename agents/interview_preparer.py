@@ -1,6 +1,7 @@
-"""Interview Preparer agent definition."""
+"""Interview Preparer agent — uses Groq LLM + resume tools."""
 
 from crewai import Agent
+from config import llm
 from tools.custom_tools import scrape_tool, search_tool, read_resume, semantic_search_resume
 
 
@@ -13,6 +14,7 @@ def create_interview_preparer() -> Agent:
             "based on the resume and job requirements."
         ),
         tools=[scrape_tool, search_tool, read_resume, semantic_search_resume],
+        llm=llm,
         verbose=True,
         backstory=(
             "Your role is crucial in anticipating the dynamics of interviews. "

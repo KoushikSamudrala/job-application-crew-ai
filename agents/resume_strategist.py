@@ -1,6 +1,7 @@
-"""Resume Strategist agent definition."""
+"""Resume Strategist agent — uses Groq LLM + resume tools."""
 
 from crewai import Agent
+from config import llm
 from tools.custom_tools import scrape_tool, search_tool, read_resume, semantic_search_resume
 
 
@@ -10,6 +11,7 @@ def create_resume_strategist() -> Agent:
         role="Resume Strategist for Engineers",
         goal="Find all the best ways to make a resume stand out in the job market.",
         tools=[scrape_tool, search_tool, read_resume, semantic_search_resume],
+        llm=llm,
         verbose=True,
         backstory=(
             "With a strategic mind and an eye for detail, you excel at refining "

@@ -1,15 +1,24 @@
-"""CrewAI tool wrappers for the Job Application Crew."""
+"""CrewAI tool wrappers for the Job Application Crew.
 
+Search  : TavilySearchResults (replaces SerperDev)
+Scraping: ScrapeWebsiteTool
+Resume  : FileReadTool + MDXSearchTool
+"""
+
+from langchain_community.tools.tavily_search import TavilySearchResults
 from crewai_tools import (
     FileReadTool,
     ScrapeWebsiteTool,
     MDXSearchTool,
-    SerperDevTool,
 )
 from config import RESUME_PATH
 
-# Web search via Serper API
-search_tool = SerperDevTool()
+# Web search via Tavily API (replaces SerperDev)
+search_tool = TavilySearchResults(
+    max_results=5,
+    search_depth="advanced",
+    include_answer=True,
+)
 
 # Scrape raw content from a job posting URL
 scrape_tool = ScrapeWebsiteTool()
